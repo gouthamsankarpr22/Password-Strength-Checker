@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Password Strength Checker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Password Strength Checker</h1>
+    <p>{{ train_info['message'] }}</p>
+    <input id="password" type="password" placeholder="Enter password">
+    <button onclick="checkPassword()">Check</button>
+    <div id="result"></div>
+    <div id="meter"><div id="bar"></div></div>
+  </div>
+
+<script>
+async function checkPassword(){
+  const pw = document.getElementById("password").value;
+  const form = new FormData();
+  form.append("password", pw);
+  const r = await fetch("/predict", {method:"POST", body:form});
+  const j = await r.json();
+  if(j.error){document.getElementById("result").innerText=j.error;return;}
+  document.getElementById("result").innerText=j.prediction;
+  let pct=0; if(j.prediction=="Medium")pct=50; if(j.prediction=="Strong")pct=100;
+  document.getElementById("bar").style.width=pct+"%";
+}
+</script>
+</body>
+</html>
